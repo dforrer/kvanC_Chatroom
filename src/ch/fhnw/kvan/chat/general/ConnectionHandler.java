@@ -30,21 +30,13 @@ public class ConnectionHandler extends Thread {
 	public void run() {
 		System.out.println("ConnectionHandler-run called");
 		// Listen on <in>
-		while (true) {
-			if (in.hasNextLine()) {
-				String input = in.readLine();
-				System.out.println("readLine: " + input);
-				// When new message arrives make callback via event
-				listener.newMessageFromClient(this, input);
-			}
-			try {
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+		while (in.hasNextLine()) {
+			String input = in.readLine();
+			System.out.println("readLine: " + input);
+			// When new message arrives make callback via event
+			listener.newMessageFromClient(this, input);
 		}
-		//System.out.println("end of run");
+		// System.out.println("end of run");
 	}
 
 	// Getter
