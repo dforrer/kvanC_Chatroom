@@ -33,12 +33,6 @@ public class Server {
 				cl.addHandler(h);
 			} catch (IOException e) {
 				System.err.println(e);
-			} finally {
-				try {
-					s.close();
-				} catch (IOException e) {
-					System.err.println(e);
-				}
 			}
 		}
 	}
