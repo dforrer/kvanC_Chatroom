@@ -5,29 +5,29 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 
+
 /*
  * Manages all the active socket-connections
  */
 
-public class ConnectionListener extends Thread{
+public class ConnectionListener implements Intercom{
 
-	ArrayList<ConnectionHandler> connections;
-	ChatRoom cr;
+	private ArrayList<ConnectionHandler> connections;
+	private ChatRoom cr;
 	
 	public ConnectionListener (ChatRoom _cr){
 		connections = new ArrayList<ConnectionHandler>(5);
 		cr = _cr;
 	}
 	
-	@Override
-	public void run() {
-		while (true) {
-			
-		}
-	}
-
 	public void addHandler(ConnectionHandler cl) {
 		connections.add(cl);
+	}
+
+	@Override
+	public void newMessageFromClient(ConnectionHandler c, String m) {
+		// Process new message
+		System.out.println("New Message is: " + m);
 	}
 	
 }

@@ -7,6 +7,7 @@ import java.net.Socket;
 public class Server {
 
 	public static void main(String[] args) {
+		
 		// TODO Auto-generated method stub
 		ChatRoomDriver crd = new ChatRoomDriver();
 		crd.connect("", 0); // To get a ChatRoom-Instance
@@ -14,10 +15,10 @@ public class Server {
 		
 		// Start listening on the server
 		ConnectionListener cl = new ConnectionListener(cr);
-		cl.start();
 		ServerSocket server = null;
 		try {
 			server = new ServerSocket(1234);
+			System.out.println("Server started and listening on port: 1234");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
