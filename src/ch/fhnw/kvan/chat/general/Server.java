@@ -8,7 +8,6 @@ public class Server {
 
 	public static void main(String[] args) {
 		
-		// TODO Auto-generated method stub
 		ChatRoomDriver crd = new ChatRoomDriver();
 		crd.connect("", 0); // To get a ChatRoom-Instance
 		ChatRoom cr = (ChatRoom) crd.getChatRoom();
