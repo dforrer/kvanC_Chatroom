@@ -1,30 +1,33 @@
 package ch.fhnw.kvan.chat.socket.client;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.Scanner;
 
 import ch.fhnw.kvan.chat.general.ChatRoom;
-import ch.fhnw.kvan.chat.general.ChatRoomDriver;
+import ch.fhnw.kvan.chat.general.Chats;
+import ch.fhnw.kvan.chat.general.Participants;
 import ch.fhnw.kvan.chat.gui.ClientGUI;
 import ch.fhnw.kvan.chat.interfaces.IChatDriver;
 import ch.fhnw.kvan.chat.interfaces.IChatRoom;
 import ch.fhnw.kvan.chat.utils.*;
 
-public class Client implements IChatDriver {
+public class Client implements IChatDriver, IChatRoom {
 
 	private static Client client;
-	
+
 	private Socket s;
 	protected In in;
 	protected Out out;
-	private ChatRoom chatRoom = null;
+	private boolean running;
+	private ClientGUI gui;
+
+	// Same as ChatRoom-Class
+	private final Participants participantInfo = new Participants();
+	private final Chats chatInfo = new Chats();
 
 	public Client() {
-
+		running = true;
+		// Start GUI
 	}
 
 	public static void main(String args[]) {
@@ -45,11 +48,67 @@ public class Client implements IChatDriver {
 		}
 
 		// Send name
+		client.startListening();
 		client.out.println("name=" + clientName);
+		client.gui = new ClientGUI(client, clientName);
 
-		// Start GUI
-		ClientGUI gui = new ClientGUI(client.getChatRoom(), clientName);
 	}
+
+	public void startListening() {
+		new Thread() {
+			public void run() {
+
+				String input = in.readLine();
+
+				while (running && input != null) {
+					System.out.println("input from server: "+input);
+					processServerMessage(input);
+					input = in.readLine();
+				}
+			}
+		}.start();
+	}
+
+	public void processServerMessage(String input) {
+		System.out.println("serverMessage:"+input);
+		String key = input.split("=")[0];
+		String value = input.split("=")[1];
+
+		switch (key) {
+		case "message":
+			// FORMAT: "message=Hello World;topic=myTopic"
+			String topic = input.split("=")[2];
+			String message = input.split("=")[1].split(";")[0];
+			chatInfo.addMessage(topic, message); // Add it to the model
+			break;
+		case "add_topic":
+			// FORMAT: "add_topic=myTopic"
+			String topic2 = input.split("=")[1];
+			chatInfo.addTopic(topic2);
+			gui.addTopic(topic2);
+			break;
+		case "remove_topic":
+			break;
+		case "topics":
+			String[] topics = value.split(";");
+			gui.updateTopics(topics);
+			break;
+		case "add_participant":
+			break;
+		case "remove_participant":
+			break;
+		case "participants":
+			break;
+		case "messages":
+			break;
+		default:
+			throw new IllegalArgumentException("Invalid key: " + key);
+		}
+	}
+
+	// --------------------------------
+	// IChatDriver-Interface-Functions
+	// --------------------------------
 
 	@Override
 	public void connect(String host, int port) throws IOException {
@@ -64,17 +123,89 @@ public class Client implements IChatDriver {
 		}
 		in = new In(s);
 		out = new Out(s);
-		chatRoom = ChatRoom.getInstance();
 	}
 
 	@Override
 	public void disconnect() throws IOException {
 		s.close();
-		chatRoom = null;
 	}
 
 	@Override
 	public IChatRoom getChatRoom() {
-		return chatRoom;
+		return this;
 	}
+
+	// --------------------------------
+	// IChatRoom-Interface-Functions
+	// --------------------------------
+
+	@Override
+	public boolean addParticipant(String name) throws IOException {
+		System.out.println("addParticipant SHOULD NEVER BE CALLED");
+		return true;
+	}
+
+	@Override
+	public boolean removeParticipant(String name) throws IOException {
+		if (!name.trim().equalsIgnoreCase("")) {
+			System.out.println("Participant removed");
+			out.println("remove_name=" + name);
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	@Override
+	public boolean addTopic(String topic) throws IOException {
+		if (!topic.trim().equalsIgnoreCase("")) {
+			System.out.println("Topic added: "+topic);
+			out.println("add_topic=" + topic);
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	@Override
+	public boolean removeTopic(String topic) throws IOException {
+		if (!topic.trim().equalsIgnoreCase("")) {
+			System.out.println("Topic removed");
+			out.println("remove_topic=" + topic);
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	@Override
+	public boolean addMessage(String topic, String message) throws IOException {
+		if (!topic.trim().equalsIgnoreCase("")
+				&& !message.trim().equalsIgnoreCase("")) {
+			System.out.println("Message added");
+			out.println("message=" + message + ";topic=" + topic);
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	@Override
+	public String getMessages(String topic) throws IOException {
+		if (!topic.trim().equalsIgnoreCase("")) {
+			return chatInfo.getMessages(topic);
+		} else {
+			return ("messages=");
+		}
+	}
+
+	@Override
+	public String refresh(String topic) throws IOException {
+		if (!topic.trim().equalsIgnoreCase("")) {
+			return chatInfo.getMessages(topic);
+		} else {
+			return ("messages=");
+		}
+	}
+
 }

@@ -1,4 +1,5 @@
-package ch.fhnw.kvan.chat.general;
+package ch.fhnw.kvan.chat.socket.server;
+
 
 public interface Intercom
 {

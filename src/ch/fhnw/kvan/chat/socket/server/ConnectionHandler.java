@@ -1,8 +1,7 @@
-package ch.fhnw.kvan.chat.general;
+package ch.fhnw.kvan.chat.socket.server;
 
 import java.net.Socket;
 
-import ch.fhnw.kvan.chat.general.Intercom;
 import ch.fhnw.kvan.chat.utils.*;
 
 /**
@@ -18,6 +17,7 @@ public class ConnectionHandler extends Thread {
 	private Out out;
 
 	// Constructor
+	
 	public ConnectionHandler(Socket _socket, ConnectionListener _listener) {
 		System.out.println("new ConnectionHandler created");
 		socket = _socket;

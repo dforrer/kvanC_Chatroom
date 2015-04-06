@@ -1,8 +1,11 @@
-package ch.fhnw.kvan.chat.general;
+package ch.fhnw.kvan.chat.socket.server;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+
+import ch.fhnw.kvan.chat.general.ChatRoom;
+import ch.fhnw.kvan.chat.general.ChatRoomDriver;
 
 public class Server {
 
