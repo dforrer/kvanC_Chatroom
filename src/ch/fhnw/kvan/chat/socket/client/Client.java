@@ -10,10 +10,23 @@ import java.util.Scanner;
 import ch.fhnw.kvan.chat.general.ChatRoom;
 import ch.fhnw.kvan.chat.general.ChatRoomDriver;
 import ch.fhnw.kvan.chat.gui.ClientGUI;
+import ch.fhnw.kvan.chat.interfaces.IChatDriver;
+import ch.fhnw.kvan.chat.interfaces.IChatRoom;
 import ch.fhnw.kvan.chat.utils.*;
 
-public class Client {
+public class Client implements IChatDriver {
+
+	private static Client client;
 	
+	private Socket s;
+	protected In in;
+	protected Out out;
+	private ChatRoom chatRoom = null;
+
+	public Client() {
+
+	}
+
 	public static void main(String args[]) {
 		System.out.println("Client-Class has been called with arguments: ");
 		System.out.println("Name: " + args[0]);
@@ -23,38 +36,45 @@ public class Client {
 		int port = Integer.parseInt(args[2]);
 		String clientName = args[0];
 
-		// Setup socket-connection
-		Socket s = null;
+		client = new Client();
 		try {
-			s = new Socket(args[1], port, null, 0);
+			client.connect(args[1], port);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		// Send name
+		client.out.println("name=" + clientName);
+
+		// Start GUI
+		ClientGUI gui = new ClientGUI(client.getChatRoom(), clientName);
+	}
+
+	@Override
+	public void connect(String host, int port) throws IOException {
+		// Setup socket-connection
+		s = null;
+		try {
+			s = new Socket(host, port, null, 0);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			System.exit(-1);
 		}
+		in = new In(s);
+		out = new Out(s);
+		chatRoom = ChatRoom.getInstance();
+	}
 
-		In in = new In(s);
-		Out out = new Out(s);
-		
-		// Setup the ChatRoom
-		ChatRoomDriver crd = new ChatRoomDriver();
-		crd.connect("", 0); // To get a ChatRoom-Instance
-		ChatRoom cr = (ChatRoom) crd.getChatRoom();
-				
-		// Start GUI
-		ClientGUI gui = new ClientGUI(cr, clientName);
-		
-		// Send name
-		out.println("name="+clientName);
-		/*
-		Scanner scan = new Scanner(System.in);
-		String input = scan.nextLine();
-		while (input != null && !input.equals("")) {
-			System.out.println("Client: " + input);
-			out.println(input);
-			input = scan.nextLine();
-		}
-		scan.close();
-	*/
-	}		
+	@Override
+	public void disconnect() throws IOException {
+		s.close();
+		chatRoom = null;
+	}
+
+	@Override
+	public IChatRoom getChatRoom() {
+		return chatRoom;
+	}
 }
