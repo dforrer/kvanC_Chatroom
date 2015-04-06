@@ -48,10 +48,9 @@ public class Client implements IChatDriver, IChatRoom {
 		}
 
 		// Send name
-		client.startListening();
 		client.out.println("name=" + clientName);
 		client.gui = new ClientGUI(client, clientName);
-
+		client.startListening();
 	}
 
 	public void startListening() {
@@ -61,7 +60,7 @@ public class Client implements IChatDriver, IChatRoom {
 				String input = in.readLine();
 
 				while (running && input != null) {
-					System.out.println("input from server: "+input);
+					System.out.println("input from server: " + input);
 					processServerMessage(input);
 					input = in.readLine();
 				}
@@ -70,7 +69,13 @@ public class Client implements IChatDriver, IChatRoom {
 	}
 
 	public void processServerMessage(String input) {
-		System.out.println("serverMessage:"+input);
+		System.out.println("serverMessage:" + input);
+
+		// Handle empty response
+		if (input.equals("topics=") || input.equals("participants=")) {
+			return;
+		}
+
 		String key = input.split("=")[0];
 		String value = input.split("=")[1];
 
@@ -83,19 +88,30 @@ public class Client implements IChatDriver, IChatRoom {
 			break;
 		case "add_topic":
 			// FORMAT: "add_topic=myTopic"
-			String topic2 = input.split("=")[1];
-			chatInfo.addTopic(topic2);
-			gui.addTopic(topic2);
+			String addedTopic = input.split("=")[1];
+			chatInfo.addTopic(addedTopic);
+			gui.addTopic(addedTopic);
 			break;
 		case "remove_topic":
+			// FORMAT: "remove_topic=myTopic"
+			String removedTopic = input.split("=")[1];
+			System.out.println("removedTopic:" + removedTopic);
+			chatInfo.removeTopic(removedTopic);
+			gui.removeTopic(removedTopic);
 			break;
 		case "topics":
 			String[] topics = value.split(";");
 			gui.updateTopics(topics);
 			break;
 		case "add_participant":
+			// FORMAT: "add_participant=client1"
+			String addedPart = input.split("=")[1];
+			gui.addParticipant(addedPart);
 			break;
 		case "remove_participant":
+			// FORMAT: "remove_participant=client2"
+			String removedPart = input.split("=")[1];
+			gui.removeParticipant(removedPart);
 			break;
 		case "participants":
 			break;
@@ -159,7 +175,7 @@ public class Client implements IChatDriver, IChatRoom {
 	@Override
 	public boolean addTopic(String topic) throws IOException {
 		if (!topic.trim().equalsIgnoreCase("")) {
-			System.out.println("Topic added: "+topic);
+			System.out.println("Topic added: " + topic);
 			out.println("add_topic=" + topic);
 			return true;
 		} else {

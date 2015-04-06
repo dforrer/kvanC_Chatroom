@@ -43,4 +43,8 @@ public class ConnectionHandler extends Thread {
 	public Out getOut() {
 		return out;
 	}
+	
+	public Socket getSocket() {
+		return socket;
+	}
 }
