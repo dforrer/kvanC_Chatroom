@@ -30,7 +30,8 @@ public class ConnectionListener implements Intercom {
 	}
 
 	@Override
-	public synchronized void newMessageFromClient(ConnectionHandler ch, String input) {
+	public synchronized void newMessageFromClient(ConnectionHandler ch,
+			String input) {
 		// Process new message: 1. Alter chatRoom 2. Distribute to all clients
 		System.out.println("New Client-Message is: " + input);
 		String key = input.split("=")[0];
@@ -39,7 +40,6 @@ public class ConnectionListener implements Intercom {
 		case "name":
 			// FORMAT: "name=client1"
 			String addedName = input.split("=")[1];
-			// TODO send messages for topics after initial connection
 			try {
 				// Add client to model
 				cr.addParticipant(addedName);
@@ -50,6 +50,20 @@ public class ConnectionListener implements Intercom {
 				// Send topics and participants to the new client
 				ch.getOut().println(cr.getTopics());
 				ch.getOut().println(cr.getParticipants());
+
+				// Send messages for topics after initial connection
+				// FORMAT: "messages=Meldung1;Meldung2;topic=myTopic"
+				if (!cr.getTopics().equals("topics=")) {
+					String[] topics = cr.getTopics().split("=")[1].split(";"); // FORMAT:
+																				// "topics=Topic1;Topic2;"
+					for (int i = 0; i < topics.length; i++) {
+						if (!cr.getMessages(topics[i]).equals("messages=")) {
+							ch.getOut().println(
+									cr.getMessages(topics[i]) + "topic="
+											+ topics[i]);
+						}
+					}
+				}
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
@@ -66,8 +80,9 @@ public class ConnectionListener implements Intercom {
 		case "remove_name":
 			// FORMAT: "remove_name=client1"
 			String removed_name = input.split("=")[1];
-			
-			// Only remove "name" if the client has registered with the same name
+
+			// Only remove "name" if the client has registered with the same
+			// name
 			if (removed_name.equals(ch.getClientName())) {
 				try {
 					cr.removeParticipant(removed_name);

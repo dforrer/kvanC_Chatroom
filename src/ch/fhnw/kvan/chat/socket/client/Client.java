@@ -117,6 +117,7 @@ public class Client implements IChatDriver, IChatRoom {
 			gui.removeTopic(removedTopic);
 			break;
 		case "topics":
+			// FORMAT: "topics=Topic1;Topic2;"
 			String[] topics = value.split(";");
 			for (int i = 0; i < topics.length; i++) {
 				chatInfo.addTopic(topics[i]);
@@ -143,6 +144,27 @@ public class Client implements IChatDriver, IChatRoom {
 			gui.updateParticipants(parts);
 			break;
 		case "messages":
+			// FORMAT: "messages=Meldung1;Meldung2;topic=myTopic"
+			String topic3 = input.split("=")[2];
+			System.out.println("topic:" + topic3);
+			String[] messages2 = input.split("=")[1].split(";;");
+			for (int i = messages2.length - 2; i>=0; i--) {
+				if (!chatInfo.addMessage(topic3, messages2[i])) {
+					System.out.println("ERROR: Couldnt add message!");
+					break;
+				}				
+			}
+			// Create String[] for the gui
+			// ("messages=String1;String2;String3;")
+			System.out.println(chatInfo.getMessages(topic3));
+			String messages3 = chatInfo.getMessages(topic3).split("=")[1];
+			String[] stringArray2 = messages3.split(";;");
+
+			// Check if should update the gui
+			if (gui.getCurrentTopic().equals(topic3)) {
+				gui.updateMessages(stringArray2);
+			}
+
 			break;
 		default:
 			throw new IllegalArgumentException("Invalid key: " + key);
