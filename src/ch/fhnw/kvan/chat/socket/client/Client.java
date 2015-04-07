@@ -85,6 +85,17 @@ public class Client implements IChatDriver, IChatRoom {
 			String topic = input.split("=")[2];
 			String message = input.split("=")[1].split(";")[0];
 			chatInfo.addMessage(topic, message); // Add it to the model
+			
+			// Create String[] for the gui ("messages=String1;String2;String3;")
+			System.out.println(chatInfo.getMessages(topic));
+			String messages = chatInfo.getMessages(topic).split("=")[1];
+			String [] stringArray = new String[1];
+			if (messages.contains(";")){
+				stringArray = messages.split(";");
+			}else{
+				stringArray[0] = messages;
+			}
+			gui.updateMessages(stringArray);
 			break;
 		case "add_topic":
 			// FORMAT: "add_topic=myTopic"
@@ -114,6 +125,8 @@ public class Client implements IChatDriver, IChatRoom {
 			gui.removeParticipant(removedPart);
 			break;
 		case "participants":
+			String[] parts = value.split(";");
+			gui.updateParticipants(parts);
 			break;
 		case "messages":
 			break;

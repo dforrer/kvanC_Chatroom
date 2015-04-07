@@ -26,7 +26,6 @@ public class ConnectionListener implements Intercom {
 	public void distributeMessage(String message) {
 		for (int i = 0; i < connections.size(); i++) {
 			connections.get(i).getOut().println(message);
-			;
 		}
 	}
 
@@ -52,7 +51,12 @@ public class ConnectionListener implements Intercom {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
-			distributeMessage("add_participant="+addedName);
+			// Send new Participant to everyone except the new Participant
+			for (int i = 0; i < connections.size(); i++) {
+				if (!ch.equals(connections.get(i))){
+					connections.get(i).getOut().println("add_participant="+addedName);					
+				}
+			}
 			break;
 		case "remove_name":
 			// FORMAT: "remove_name=client1"
