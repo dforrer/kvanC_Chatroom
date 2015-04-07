@@ -1,7 +1,10 @@
 package ch.fhnw.kvan.chat.socket.server;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 import ch.fhnw.kvan.chat.general.ChatRoom;
 
@@ -99,7 +102,8 @@ public class ConnectionListener implements Intercom {
 			// FORMAT: "message=Hello World;topic=myTopic"
 			String topic = input.split("=")[2];
 			String message = input.split("=")[1].split(";")[0];
-			message = ch.getClientName() + ": " + message;
+			DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+			message = dateFormat.format(new Date()) + " " + ch.getClientName() + " : " + message;
 			try {
 				cr.addMessage(topic, message);
 			} catch (IOException e) {
