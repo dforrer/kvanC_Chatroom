@@ -43,7 +43,10 @@ public class ConnectionListener implements Intercom {
 			try {
 				// Add client to model
 				cr.addParticipant(addedName);
-				
+
+				// Set the clientName
+				ch.setClientName(addedName);
+
 				// Send topics and participants to the new client
 				ch.getOut().println(cr.getTopics());
 				ch.getOut().println(cr.getParticipants());
@@ -51,31 +54,37 @@ public class ConnectionListener implements Intercom {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
-			// Send new Participant to everyone except the new Participant himself
+			// Send new Participant to everyone except the new Participant
+			// himself
 			for (int i = 0; i < connections.size(); i++) {
-				if (!ch.equals(connections.get(i))){
-					connections.get(i).getOut().println("add_participant="+addedName);					
+				if (!ch.equals(connections.get(i))) {
+					connections.get(i).getOut()
+							.println("add_participant=" + addedName);
 				}
 			}
 			break;
 		case "remove_name":
 			// FORMAT: "remove_name=client1"
 			String removed_name = input.split("=")[1];
-			try {
-				cr.removeParticipant(removed_name);
-				ch.getSocket().close();
-				connections.remove(ch);
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
+			
+			// Only remove "name" if the client has registered with the same name
+			if (removed_name.equals(ch.getClientName())) {
+				try {
+					cr.removeParticipant(removed_name);
+					ch.getSocket().close();
+					connections.remove(ch);
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				distributeMessage("remove_participant=" + removed_name);
 			}
-			distributeMessage("remove_participant="+removed_name);
-
 			break;
 		case "message":
 			// FORMAT: "message=Hello World;topic=myTopic"
 			String topic = input.split("=")[2];
 			String message = input.split("=")[1].split(";")[0];
+			message = ch.getClientName() + ": " + message;
 			try {
 				cr.addMessage(topic, message);
 			} catch (IOException e) {

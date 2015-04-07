@@ -15,6 +15,7 @@ public class ConnectionHandler extends Thread {
 	private ConnectionListener listener;
 	private In in;
 	private Out out;
+	private String clientName;
 
 	// Constructor
 	
@@ -44,5 +45,13 @@ public class ConnectionHandler extends Thread {
 	
 	public Socket getSocket() {
 		return socket;
+	}
+	
+	public void setClientName (String _clientName) {
+		clientName = _clientName;
+	}
+	
+	public String getClientName () {
+		return clientName;
 	}
 }
