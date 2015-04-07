@@ -30,7 +30,7 @@ public class ConnectionListener implements Intercom {
 	}
 
 	@Override
-	public void newMessageFromClient(ConnectionHandler ch, String input) {
+	public synchronized void newMessageFromClient(ConnectionHandler ch, String input) {
 		// Process new message: 1. Alter chatRoom 2. Distribute to all clients
 		System.out.println("New Client-Message is: " + input);
 		String key = input.split("=")[0];
