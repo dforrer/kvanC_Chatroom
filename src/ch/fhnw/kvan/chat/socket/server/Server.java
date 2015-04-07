@@ -19,8 +19,8 @@ public class Server {
 		ConnectionListener cl = new ConnectionListener(cr);
 		ServerSocket server = null;
 		try {
-			server = new ServerSocket(1234);
-			System.out.println("Server started and listening on port: 1234");
+			server = new ServerSocket(1235);
+			System.out.println("Server started and listening on port: 1235");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

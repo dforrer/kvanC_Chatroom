@@ -32,7 +32,7 @@ public class ConnectionListener implements Intercom {
 	@Override
 	public void newMessageFromClient(ConnectionHandler ch, String input) {
 		// Process new message: 1. Alter chatRoom 2. Distribute to all clients
-		System.out.println("New Message is: " + input);
+		System.out.println("New Client-Message is: " + input);
 		String key = input.split("=")[0];
 
 		switch (key) {
@@ -51,7 +51,7 @@ public class ConnectionListener implements Intercom {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
-			// Send new Participant to everyone except the new Participant
+			// Send new Participant to everyone except the new Participant himself
 			for (int i = 0; i < connections.size(); i++) {
 				if (!ch.equals(connections.get(i))){
 					connections.get(i).getOut().println("add_participant="+addedName);					
@@ -113,14 +113,6 @@ public class ConnectionListener implements Intercom {
 
 			// Distribute topic among all the clients
 			distributeMessage("remove_topic=" + removedTopic);
-			break;
-		case "add_participant":
-			break;
-		case "remove_participant":
-			break;
-		case "participants":
-			break;
-		case "messages":
 			break;
 		default:
 			throw new IllegalArgumentException("Invalid key: " + key);

@@ -49,6 +49,7 @@ public class Client implements IChatDriver, IChatRoom {
 
 		// Send name
 		client.out.println("name=" + clientName);
+
 		client.gui = new ClientGUI(client, clientName);
 		client.startListening();
 	}
@@ -83,19 +84,24 @@ public class Client implements IChatDriver, IChatRoom {
 		case "message":
 			// FORMAT: "message=Hello World;topic=myTopic"
 			String topic = input.split("=")[2];
+			System.out.println("topic:" + topic);
 			String message = input.split("=")[1].split(";")[0];
-			chatInfo.addMessage(topic, message); // Add it to the model
-			
-			// Create String[] for the gui ("messages=String1;String2;String3;")
+			System.out.println("message:" + message);
+			if (!chatInfo.addMessage(topic, message)) {
+				System.out.println("ERROR: Couldnt add message!");
+				break;
+			}
+			// Create String[] for the gui
+			// ("messages=String1;String2;String3;")
 			System.out.println(chatInfo.getMessages(topic));
 			String messages = chatInfo.getMessages(topic).split("=")[1];
-			String [] stringArray = new String[1];
-			if (messages.contains(";")){
-				stringArray = messages.split(";");
-			}else{
-				stringArray[0] = messages;
+			String[] stringArray = messages.split(";;");
+
+			// Check if should update the gui
+			if (gui.getCurrentTopic().equals(topic)) {
+				gui.updateMessages(stringArray);
 			}
-			gui.updateMessages(stringArray);
+
 			break;
 		case "add_topic":
 			// FORMAT: "add_topic=myTopic"
@@ -112,20 +118,28 @@ public class Client implements IChatDriver, IChatRoom {
 			break;
 		case "topics":
 			String[] topics = value.split(";");
+			for (int i = 0; i < topics.length; i++) {
+				chatInfo.addTopic(topics[i]);
+			}
 			gui.updateTopics(topics);
 			break;
 		case "add_participant":
 			// FORMAT: "add_participant=client1"
 			String addedPart = input.split("=")[1];
+			participantInfo.addParticipant(addedPart);
 			gui.addParticipant(addedPart);
 			break;
 		case "remove_participant":
 			// FORMAT: "remove_participant=client2"
 			String removedPart = input.split("=")[1];
+			participantInfo.removeParticipant(removedPart);
 			gui.removeParticipant(removedPart);
 			break;
 		case "participants":
 			String[] parts = value.split(";");
+			for (int i = 0; i < parts.length; i++) {
+				participantInfo.addParticipant(parts[i]);
+			}
 			gui.updateParticipants(parts);
 			break;
 		case "messages":
@@ -164,9 +178,14 @@ public class Client implements IChatDriver, IChatRoom {
 		return this;
 	}
 
-	// --------------------------------
+	// ----------------------------------------------------------------
 	// IChatRoom-Interface-Functions
-	// --------------------------------
+	// ----------------------------------------------------------------
+	// I have implemented the IChatRoom-Interface here, so that we get
+	// a notification when the ClientGUI changes the chatroom-model.
+	// All changes are then forwarded to the server, which in turn
+	// distributes the change to all other clients.
+	// ----------------------------------------------------------------
 
 	@Override
 	public boolean addParticipant(String name) throws IOException {
@@ -221,9 +240,16 @@ public class Client implements IChatDriver, IChatRoom {
 
 	@Override
 	public String getMessages(String topic) throws IOException {
-		if (!topic.trim().equalsIgnoreCase("")) {
+		System.out.println("getMessages CALLED--------------");
+		if (!topic.trim().equalsIgnoreCase("")
+				&& !chatInfo.getMessages(topic).equals("messages=")) {
+			String messages = chatInfo.getMessages(topic).split("=")[1];
+			String[] stringArray = messages.split(";;");
+			gui.updateMessages(stringArray);
+
 			return chatInfo.getMessages(topic);
 		} else {
+			gui.updateMessages(new String[0]);
 			return ("messages=");
 		}
 	}

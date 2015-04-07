@@ -28,11 +28,9 @@ public class ConnectionHandler extends Thread {
 
 	@Override
 	public void run() {
-		System.out.println("ConnectionHandler-run called");
 		// Listen on <in>
 		while (in.hasNextLine()) {
 			String input = in.readLine();
-			System.out.println("readLine: " + input);
 			// When new message arrives make callback via event
 			listener.newMessageFromClient(this, input);
 		}
