@@ -3,7 +3,6 @@ package ch.fhnw.kvan.chat.socket.client;
 import java.io.IOException;
 import java.net.Socket;
 
-import ch.fhnw.kvan.chat.general.ChatRoom;
 import ch.fhnw.kvan.chat.general.Chats;
 import ch.fhnw.kvan.chat.general.Participants;
 import ch.fhnw.kvan.chat.gui.ClientGUI;
