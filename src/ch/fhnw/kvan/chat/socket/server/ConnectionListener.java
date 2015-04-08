@@ -132,15 +132,18 @@ public class ConnectionListener implements Intercom {
 			// FORMAT: "remove_topic=myTopic"
 			String removedTopic = input.split("=")[1];
 			System.out.println("removedTopic:" + removedTopic);
+			boolean topicRemoved = false;
 			try {
-				cr.removeTopic(removedTopic); // add topic to chatroom-model
+				topicRemoved = cr.removeTopic(removedTopic); // add topic to chatroom-model
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 
-			// Distribute topic among all the clients
-			distributeMessage("remove_topic=" + removedTopic);
+			if (topicRemoved) {
+				// Distribute topic among all the clients
+				distributeMessage("remove_topic=" + removedTopic);
+			}
 			break;
 		default:
 			throw new IllegalArgumentException("Invalid key: " + key);
